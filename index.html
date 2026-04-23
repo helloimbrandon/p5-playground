@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p5.js Playground</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #F5F3EF;
+      --bg-warm: #EFECE6;
+      --text: #1A1A1A;
+      --text-light: #6B6B6B;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Inter', Helvetica Neue, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 80px 60px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    header .eyebrow {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 24px;
+    }
+    header h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 6vw, 96px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -1px;
+    }
+    header h1 em {
+      font-style: italic;
+      font-weight: 400;
+    }
+    header .subtitle {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--text-light);
+      margin-top: 20px;
+      max-width: 480px;
+    }
+
+    /* ── Sections ── */
+    .section {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 60px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .section:last-of-type { border-bottom: none; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .section-header .number {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .section-header h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+    }
+    .section-header p {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--text-light);
+      max-width: 320px;
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .canvas-wrap {
+      width: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+      background: var(--bg-warm);
+    }
+    .canvas-wrap canvas {
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 60px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    footer span {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text-light);
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+      header, .section, footer { padding-left: 24px; padding-right: 24px; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .section-header p { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="eyebrow">Interactive Sketchbook</div>
+    <h1>p5.js <em>Playground</em></h1>
+    <p class="subtitle">A curated exploration of creative coding fundamentals — shape, motion, interaction, and generative form.</p>
+  </header>
+
+  <!-- ── 01 · Shapes & Geometry ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">01</div>
+        <h2>Shapes &amp; Geometry</h2>
+      </div>
+      <p>Primitive forms rendered in real-time. Hover to influence the composition.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-shapes"></div>
+  </section>
+
+  <!-- ── 02 · Perlin Noise ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">02</div>
+        <h2>Perlin Noise</h2>
+      </div>
+      <p>Move your cursor to warp the flow field. Click to scatter a turbulence burst.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-noise"></div>
+  </section>
+
+  <!-- ── 03 · Particle Systems ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">03</div>
+        <h2>Particle Systems</h2>
+      </div>
+      <p>Click or tap to emit particles. Each responds to gravity and fades with age.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-particles"></div>
+  </section>
+
+  <!-- ── 04 · Transforms & Repetition ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">04</div>
+        <h2>Transforms &amp; Repetition</h2>
+      </div>
+      <p>Mouse position shifts the centre of rotation. Click to add or remove rings.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-transforms"></div>
+  </section>
+
+  <!-- ── 05 · Interaction ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">05</div>
+        <h2>Mouse Interaction</h2>
+      </div>
+      <p>Cursor position drives the drawing. Move across the canvas to compose.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-interaction"></div>
+  </section>
+
+  <!-- ── 06 · Typography ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">06</div>
+        <h2>Typography &amp; Text</h2>
+      </div>
+      <p>Hover to attract words toward the cursor. Click to freeze and scatter them.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-type"></div>
+  </section>
+
+  <!-- ── 07 · Kinetic Type ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">07</div>
+        <h2>Kinetic Type</h2>
+      </div>
+      <p>Move to control the wave amplitude. Click to randomise the phrase.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-kinetic"></div>
+  </section>
+
+  <!-- ── 08 · Text Along Path ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">08</div>
+        <h2>Text Along Path</h2>
+      </div>
+      <p>Mouse position moves the centre point. Click to reverse rotation direction.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-textpath"></div>
+  </section>
+
+  <!-- ── 09 · Type Grid ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">09</div>
+        <h2>Type Grid</h2>
+      </div>
+      <p>A grid of letterforms responding to mouse proximity — size, opacity, and rotation in flux.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-typegrid"></div>
+  </section>
+
+  <!-- ── 10 · Colour &amp; Blending ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">10</div>
+        <h2>Colour &amp; Blending</h2>
+      </div>
+      <p>Hover to shift the hue origin. Click to toggle between blend modes.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-color"></div>
+  </section>
+
+  <!-- ── 11 · Curves & Vertices ── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="number">11</div>
+        <h2>Curves &amp; Vertices</h2>
+      </div>
+      <p>Hover to push the curves apart. Click to add a new flowing line.</p>
+    </div>
+    <div class="canvas-wrap" id="sketch-curves"></div>
+  </section>
+
+  <footer>
+    <span>Built with p5.js</span>
+    <span>2026</span>
+  </footer>
+
+  <script>
+  /* ═══════════════════════════════════════════
+     Helpers
+     ═══════════════════════════════════════════ */
+  const BG = [245, 243, 239];
+  const WARM = [239, 236, 230];
+
+  function sketchWidth(parent) {
+    return parent.offsetWidth;
+  }
+
+  /* ═══════════════════════════════════════════
+     01 · Shapes & Geometry
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-shapes');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.noLoop();
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      p.noFill();
+      p.strokeWeight(1);
+      p.stroke(26, 26, 26, 180);
+
+      const cols = 8;
+      const rows = 3;
+      const cellW = w / cols;
+      const cellH = h / rows;
+      const mx = p.mouseX || w / 2;
+      const my = p.mouseY || h / 2;
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const cx = cellW * i + cellW / 2;
+          const cy = cellH * j + cellH / 2;
+          const d = p.dist(mx, my, cx, cy);
+          const size = p.map(d, 0, w * 0.6, cellW * 0.7, 8);
+          p.push();
+          p.translate(cx, cy);
+          p.rotate(d * 0.005);
+          const shape = (i + j) % 4;
+          if (shape === 0) p.ellipse(0, 0, size, size);
+          else if (shape === 1) p.rect(-size/2, -size/2, size, size);
+          else if (shape === 2) {
+            p.beginShape();
+            for (let a = 0; a < p.TWO_PI; a += p.TWO_PI / 6) {
+              p.vertex(p.cos(a) * size/2, p.sin(a) * size/2);
+            }
+            p.endShape(p.CLOSE);
+          } else {
+            p.line(-size/2, -size/2, size/2, size/2);
+            p.line(-size/2, size/2, size/2, -size/2);
+          }
+          p.pop();
+        }
+      }
+    };
+    p.mouseMoved = function() { if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) p.redraw(); };
+  });
+
+  /* ═══════════════════════════════════════════
+     02 · Perlin Noise
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    const scale = 0.005;
+    let zOff = 0;
+    let disturbances = [];
+    p.setup = function() {
+      const parent = document.getElementById('sketch-noise');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      p.stroke(26, 26, 26);
+      p.strokeWeight(1);
+      const step = 16;
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+
+      // decay disturbances
+      for (let d = disturbances.length - 1; d >= 0; d--) {
+        disturbances[d].life -= 0.02;
+        if (disturbances[d].life <= 0) disturbances.splice(d, 1);
+      }
+
+      for (let x = step; x < w; x += step) {
+        for (let y = step; y < h; y += step) {
+          let angle = p.noise(x * scale, y * scale, zOff) * p.TWO_PI * 2;
+          let len = p.noise(x * scale + 100, y * scale + 100, zOff) * 14 + 4;
+
+          // mouse warp
+          if (inBounds) {
+            const dm = p.dist(x, y, mx, my);
+            if (dm < 120) {
+              const warp = p.map(dm, 0, 120, 1.5, 0);
+              angle += p.atan2(y - my, x - mx) * warp;
+              len += warp * 6;
+            }
+          }
+
+          // click disturbance warps
+          for (const burst of disturbances) {
+            const db = p.dist(x, y, burst.x, burst.y);
+            if (db < 180) {
+              const power = p.map(db, 0, 180, burst.life * 3, 0);
+              angle += p.atan2(y - burst.y, x - burst.x) * power;
+              len += power * 4;
+            }
+          }
+
+          p.push();
+          p.translate(x, y);
+          p.rotate(angle);
+          const alpha = p.map(len, 4, 30, 40, 220);
+          p.stroke(26, 26, 26, p.constrain(alpha, 0, 255));
+          p.line(0, 0, p.constrain(len, 2, 30), 0);
+          p.pop();
+        }
+      }
+      zOff += 0.003;
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        disturbances.push({ x: p.mouseX, y: p.mouseY, life: 1.0 });
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     03 · Particle Systems
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    let particles = [];
+
+    class Particle {
+      constructor(x, y) {
+        this.pos = p.createVector(x, y);
+        this.vel = p5.Vector.random2D().mult(p.random(1, 4));
+        this.acc = p.createVector(0, 0.06);
+        this.life = 255;
+        this.size = p.random(2, 7);
+      }
+      update() { this.vel.add(this.acc); this.pos.add(this.vel); this.life -= 2.5; }
+      show() {
+        p.noStroke();
+        p.fill(26, 26, 26, this.life);
+        p.ellipse(this.pos.x, this.pos.y, this.size);
+      }
+      done() { return this.life <= 0; }
+    }
+
+    p.setup = function() {
+      const parent = document.getElementById('sketch-particles');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+
+      if (p.frameCount % 4 === 0) {
+        particles.push(new Particle(w / 2, h / 2));
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].show();
+        if (particles[i].done()) particles.splice(i, 1);
+      }
+
+      if (particles.length < 30) {
+        p.fill(26, 26, 26, 60);
+        p.noStroke();
+        p.textFont('Inter, sans-serif');
+        p.textSize(12);
+        p.textAlign(p.CENTER);
+        p.text('click anywhere to emit particles', w/2, h - 30);
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        for (let i = 0; i < 30; i++) particles.push(new Particle(p.mouseX, p.mouseY));
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     04 · Transforms & Repetition
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    let ringCount = 6;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-transforms');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      p.noFill();
+      p.stroke(26, 26, 26);
+      p.strokeWeight(0.8);
+      const t = p.frameCount * 0.008;
+      // centre follows mouse
+      const inBounds = p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h;
+      const cx = inBounds ? p.lerp(w / 2, p.mouseX, 0.4) : w / 2;
+      const cy = inBounds ? p.lerp(h / 2, p.mouseY, 0.4) : h / 2;
+
+      for (let ring = 0; ring < ringCount; ring++) {
+        const count = 8 + ring * 4;
+        const radius = 40 + ring * 36;
+        for (let i = 0; i < count; i++) {
+          const angle = (p.TWO_PI / count) * i + t * (ring % 2 === 0 ? 1 : -1);
+          const x = cx + p.cos(angle) * radius;
+          const y = cy + p.sin(angle) * radius;
+          const sz = p.map(ring, 0, ringCount - 1, 18, 6);
+          p.push();
+          p.translate(x, y);
+          p.rotate(angle + t * 2);
+          const alpha = p.map(ring, 0, ringCount - 1, 200, 80);
+          p.stroke(26, 26, 26, alpha);
+          p.rect(-sz/2, -sz/2, sz, sz);
+          p.pop();
+        }
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        ringCount = ringCount >= 10 ? 3 : ringCount + 1;
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     05 · Interaction
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    let trail = [];
+    p.setup = function() {
+      const parent = document.getElementById('sketch-interaction');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        trail.push({ x: p.mouseX, y: p.mouseY });
+      }
+      if (trail.length > 120) trail.shift();
+
+      p.noFill();
+      p.strokeWeight(1);
+      for (let i = 1; i < trail.length; i++) {
+        const alpha = p.map(i, 0, trail.length, 10, 220);
+        const weight = p.map(i, 0, trail.length, 0.5, 3);
+        p.strokeWeight(weight);
+        p.stroke(26, 26, 26, alpha);
+        p.line(trail[i-1].x, trail[i-1].y, trail[i].x, trail[i].y);
+
+        if (i % 6 === 0) {
+          const dx = trail[i].x - trail[i-1].x;
+          const dy = trail[i].y - trail[i-1].y;
+          const len = p.sqrt(dx*dx + dy*dy);
+          if (len > 0.5) {
+            const nx = -dy / len * 10;
+            const ny = dx / len * 10;
+            p.strokeWeight(0.5);
+            p.stroke(26, 26, 26, alpha * 0.4);
+            p.line(trail[i].x - nx, trail[i].y - ny, trail[i].x + nx, trail[i].y + ny);
+          }
+        }
+      }
+
+      if (trail.length > 0) {
+        p.noStroke();
+        p.fill(26, 26, 26);
+        const last = trail[trail.length - 1];
+        p.ellipse(last.x, last.y, 6, 6);
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     06 · Typography
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    const words = ['draw', 'create', 'noise', 'pixel', 'loop', 'vertex', 'shape', 'color'];
+    let frozen = false;
+    let scatterT = 0;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-type');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.frameRate(30);
+      p.textAlign(p.CENTER, p.CENTER);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      const t = frozen ? scatterT : p.frameCount * 0.015;
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+
+      for (let i = 0; i < words.length; i++) {
+        let x = w/2 + p.sin(t + i * 0.9) * (w * 0.3);
+        let y = h/2 + p.cos(t * 0.7 + i * 1.1) * (h * 0.28);
+
+        // attract toward mouse
+        if (inBounds && !frozen) {
+          const d = p.dist(x, y, mx, my);
+          const pull = p.constrain(p.map(d, 0, 300, 0.35, 0), 0, 0.35);
+          x = p.lerp(x, mx, pull);
+          y = p.lerp(y, my, pull);
+        }
+
+        // scatter on freeze
+        if (frozen) {
+          const elapsed = (p.frameCount * 0.015) - scatterT;
+          x += p.sin(i * 3.7) * elapsed * 80;
+          y += p.cos(i * 2.3) * elapsed * 80;
+        }
+
+        const size = p.map(p.sin(t + i), -1, 1, 14, 64);
+        const alpha = p.map(p.cos(t * 0.5 + i * 0.7), -1, 1, 30, 200);
+        p.noStroke();
+        p.fill(26, 26, 26, frozen ? alpha * 0.5 : alpha);
+        p.textFont(i % 2 === 0 ? 'Playfair Display' : 'Inter');
+        p.textStyle(i % 3 === 0 ? p.ITALIC : p.NORMAL);
+        p.textSize(size);
+        p.text(words[i], x, y);
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        frozen = !frozen;
+        scatterT = p.frameCount * 0.015;
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     07 · Kinetic Type
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    const phrases = ['CREATIVE CODING', 'GENERATIVE ART', 'VISUAL RHYTHM', 'TYPE IN MOTION'];
+    let phraseIndex = 0;
+    let phrase = phrases[0];
+    p.setup = function() {
+      const parent = document.getElementById('sketch-kinetic');
+      w = sketchWidth(parent); h = 480;
+      p.createCanvas(w, h).parent(parent);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      const t = p.frameCount * 0.02;
+      const baseSize = p.min(w / (phrase.length * 0.55), 100);
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+      const amp = inBounds ? p.map(my, 0, h, 5, 80) : 30;
+      const sizeRange = inBounds ? p.map(mx, 0, w, 0.1, 0.6) : 0.35;
+
+      for (let i = 0; i < phrase.length; i++) {
+        const xPos = p.map(i, 0, phrase.length - 1, w * 0.08, w * 0.92);
+        const yOff = p.sin(t + i * 0.4) * amp;
+        const sizeOff = p.sin(t * 1.3 + i * 0.5) * baseSize * sizeRange;
+        const sz = baseSize + sizeOff;
+        const alpha = p.map(p.sin(t * 0.7 + i * 0.3), -1, 1, 60, 240);
+        const rot = p.sin(t * 0.5 + i * 0.6) * (amp / 200);
+
+        p.push();
+        p.translate(xPos, h * 0.33 + yOff);
+        p.rotate(rot);
+        p.noStroke();
+        p.fill(26, 26, 26, alpha);
+        p.textFont('Playfair Display');
+        p.textStyle(p.NORMAL);
+        p.textSize(sz);
+        p.text(phrase[i], 0, 0);
+        p.pop();
+      }
+
+      const sub = 'every letter breathes';
+      const subSize = baseSize * 0.28;
+      for (let i = 0; i < sub.length; i++) {
+        const xPos = p.map(i, 0, sub.length - 1, w * 0.15, w * 0.85);
+        const yOff = p.cos(t * 0.8 + i * 0.3) * (amp * 0.5);
+        const spacing = p.sin(t + i * 0.5) * 4;
+        const alpha = p.map(p.cos(t * 0.6 + i * 0.4), -1, 1, 40, 180);
+
+        p.push();
+        p.translate(xPos + spacing, h * 0.58 + yOff);
+        p.noStroke();
+        p.fill(26, 26, 26, alpha);
+        p.textFont('Inter');
+        p.textStyle(p.NORMAL);
+        p.textSize(subSize);
+        p.text(sub[i], 0, 0);
+        p.pop();
+      }
+
+      const words = ['rhythm', 'weight', 'motion', 'scale'];
+      for (let w_i = 0; w_i < words.length; w_i++) {
+        const xPos = p.map(w_i, 0, words.length - 1, w * 0.18, w * 0.82);
+        const sz = p.map(p.sin(t * 0.9 + w_i * 1.5), -1, 1, 16, 40);
+        const alpha = p.map(p.sin(t * 0.6 + w_i * 0.8), -1, 1, 50, 220);
+        const yOff = p.sin(t * 1.2 + w_i * 2) * (amp * 0.3);
+
+        p.noStroke();
+        const boldness = p.map(p.sin(t + w_i * 1.2), -1, 1, 0, 3);
+        p.fill(26, 26, 26, alpha * 0.4);
+        p.textFont(w_i % 2 === 0 ? 'Playfair Display' : 'Inter');
+        p.textStyle(p.ITALIC);
+        p.textSize(sz);
+        for (let b = 0; b < boldness; b++) {
+          p.text(words[w_i], xPos + b * 0.5, h * 0.78 + yOff);
+        }
+        p.fill(26, 26, 26, alpha);
+        p.text(words[w_i], xPos, h * 0.78 + yOff);
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        phrase = phrases[phraseIndex];
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     08 · Text Along Path
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    let dirMult = 1;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-textpath');
+      w = sketchWidth(parent); h = 480;
+      p.createCanvas(w, h).parent(parent);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      const t = p.frameCount * 0.006 * dirMult;
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+      const centerX = inBounds ? p.lerp(w / 2, mx, 0.3) : w / 2;
+      const centerY = inBounds ? p.lerp(h * 0.45, my, 0.3) : h * 0.45;
+
+      const phrases = [
+        'p5.js · creative · coding · canvas · interactive · design · ',
+        'SHAPE · FORM · LIGHT · SPACE · TIME · MOTION · COLOR · PIXEL · '
+      ];
+      const radii = [p.min(w, h) * 0.32, p.min(w, h) * 0.2];
+      const sizes = [13, 18];
+      const fonts = ['Inter', 'Playfair Display'];
+      const dirs = [1, -1];
+
+      for (let r = 0; r < phrases.length; r++) {
+        const phrase = phrases[r];
+        const radius = radii[r];
+        const charAngle = p.TWO_PI / phrase.length;
+
+        p.push();
+        p.translate(centerX, centerY);
+        p.rotate(t * dirs[r]);
+        p.textFont(fonts[r]);
+        p.textSize(sizes[r]);
+        p.textStyle(p.NORMAL);
+        p.noStroke();
+
+        for (let i = 0; i < phrase.length; i++) {
+          const angle = charAngle * i;
+          const alpha = p.map(p.sin(t * 3 + i * 0.3), -1, 1, 60, 220);
+          p.fill(26, 26, 26, alpha);
+          p.push();
+          p.rotate(angle);
+          p.translate(0, -radius);
+          p.rotate(p.PI);
+          p.text(phrase[i], 0, 0);
+          p.pop();
+        }
+        p.pop();
+      }
+
+      const wave = 'text follows any path you can imagine';
+      const waveSize = 14;
+      p.textFont('Inter');
+      p.textSize(waveSize);
+      p.textStyle(p.NORMAL);
+      const waveAmp = inBounds ? p.map(my, 0, h, 4, 40) : 18;
+      for (let i = 0; i < wave.length; i++) {
+        const xPos = p.map(i, 0, wave.length - 1, w * 0.06, w * 0.94);
+        const yPos = h * 0.85 + p.sin(t * 4 * dirMult + i * 0.25) * waveAmp;
+        const alpha = p.map(p.sin(t * 2 + i * 0.2), -1, 1, 50, 200);
+        p.fill(26, 26, 26, alpha);
+        p.noStroke();
+        p.text(wave[i], xPos, yPos);
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        dirMult *= -1;
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     09 · Type Grid
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&?!'.split('');
+    p.setup = function() {
+      const parent = document.getElementById('sketch-typegrid');
+      w = sketchWidth(parent); h = 480;
+      p.createCanvas(w, h).parent(parent);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.frameRate(30);
+      p.noiseSeed(42);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      const cols = 18;
+      const rows = 10;
+      const cellW = w / cols;
+      const cellH = h / rows;
+      const mx = p.mouseX || w / 2;
+      const my = p.mouseY || h / 2;
+      const t = p.frameCount * 0.01;
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const cx = cellW * i + cellW / 2;
+          const cy = cellH * j + cellH / 2;
+          const d = p.dist(mx, my, cx, cy);
+          const maxDist = 250;
+          const influence = p.constrain(p.map(d, 0, maxDist, 1, 0), 0, 1);
+
+          const sz = p.lerp(11, 36, influence);
+          const alpha = p.lerp(30, 240, influence);
+          const rot = influence * p.sin(t + i * 0.3 + j * 0.4) * 0.5;
+
+          const charIndex = (i + j * cols + p.floor(t * 0.5)) % chars.length;
+          const useSerif = (i + j) % 3 === 0;
+
+          p.push();
+          p.translate(cx, cy);
+          p.rotate(rot);
+          p.noStroke();
+          p.fill(26, 26, 26, alpha);
+          p.textFont(useSerif ? 'Playfair Display' : 'Inter');
+          p.textStyle(influence > 0.5 ? p.BOLD : p.NORMAL);
+          p.textSize(sz);
+          p.text(chars[charIndex], 0, 0);
+          p.pop();
+        }
+      }
+    };
+    p.mouseMoved = function() {};
+  });
+
+  /* ═══════════════════════════════════════════
+     10 · Color & Blending
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    const blendModes = ['source-over', 'multiply', 'screen', 'overlay'];
+    const blendLabels = ['Normal', 'Multiply', 'Screen', 'Overlay'];
+    let blendIndex = 0;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-color');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.colorMode(p.HSB, 360, 100, 100, 100);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(40, 6, 94);
+      p.drawingContext.globalCompositeOperation = blendModes[blendIndex];
+      p.noStroke();
+      const t = p.frameCount * 0.005;
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+      const hueShift = inBounds ? p.map(mx, 0, w, 0, 180) : 0;
+      const satShift = inBounds ? p.map(my, 0, h, 10, 50) : 25;
+
+      for (let i = 0; i < 20; i++) {
+        const x = w/2 + p.sin(t * (1 + i * 0.1)) * w * 0.35;
+        const y = h/2 + p.cos(t * (0.8 + i * 0.12)) * h * 0.3;
+        const hue = (i * 18 + p.frameCount * 0.3 + hueShift) % 360;
+        const size = 60 + p.sin(t * 2 + i) * 40;
+        p.fill(hue, satShift, 85, 12);
+        p.ellipse(x, y, size, size);
+      }
+
+      for (let i = 0; i < 5; i++) {
+        const x = w/2 + p.cos(t * 0.6 + i * 1.3) * w * 0.25;
+        const y = h/2 + p.sin(t * 0.5 + i * 1.5) * h * 0.2;
+        p.fill(0, 0, 15, 6);
+        p.ellipse(x, y, 80 + p.sin(t + i) * 30);
+      }
+
+      // reset blend and show label
+      p.drawingContext.globalCompositeOperation = 'source-over';
+      p.colorMode(p.RGB, 255);
+      p.fill(26, 26, 26, 80);
+      p.noStroke();
+      p.textFont('Inter');
+      p.textSize(11);
+      p.textAlign(p.LEFT, p.BOTTOM);
+      p.text('Blend: ' + blendLabels[blendIndex] + '  (click to cycle)', 16, h - 14);
+      p.colorMode(p.HSB, 360, 100, 100, 100);
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        blendIndex = (blendIndex + 1) % blendModes.length;
+      }
+    };
+  });
+
+  /* ═══════════════════════════════════════════
+     11 · Curves & Vertices
+     ═══════════════════════════════════════════ */
+  new p5(function(p) {
+    let w, h;
+    let lineCount = 12;
+    p.setup = function() {
+      const parent = document.getElementById('sketch-curves');
+      w = sketchWidth(parent); h = 420;
+      p.createCanvas(w, h).parent(parent);
+      p.frameRate(30);
+    };
+    p.draw = function() {
+      p.background(...WARM);
+      p.noFill();
+      p.strokeWeight(1);
+      const t = p.frameCount * 0.01;
+      const mx = p.mouseX;
+      const my = p.mouseY;
+      const inBounds = mx > 0 && mx < w && my > 0 && my < h;
+
+      for (let line = 0; line < lineCount; line++) {
+        const alpha = p.map(line, 0, lineCount - 1, 180, 40);
+        p.stroke(26, 26, 26, alpha);
+        p.beginShape();
+        const yBase = p.map(line, 0, lineCount - 1, h * 0.1, h * 0.9);
+        for (let x = 0; x <= w; x += 8) {
+          const noiseVal = p.noise(x * 0.003, line * 0.5, t);
+          let y = yBase + (noiseVal - 0.5) * 120;
+
+          // mouse repulsion
+          if (inBounds) {
+            const d = p.dist(x, y, mx, my);
+            if (d < 140) {
+              const push = p.map(d, 0, 140, 60, 0);
+              const angle = p.atan2(y - my, x - mx);
+              y += p.sin(angle) * push;
+            }
+          }
+
+          p.curveVertex(x, y);
+        }
+        p.endShape();
+      }
+    };
+    p.mousePressed = function() {
+      if (p.mouseX > 0 && p.mouseX < w && p.mouseY > 0 && p.mouseY < h) {
+        lineCount = lineCount >= 24 ? 6 : lineCount + 3;
+      }
+    };
+  });
+  </script>
+</body>
+</html>
